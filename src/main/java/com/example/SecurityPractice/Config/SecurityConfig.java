@@ -1,28 +1,64 @@
 package com.example.SecurityPractice.Config;
 
+import com.example.SecurityPractice.security.filter.FormLoginFilter;
+import com.example.SecurityPractice.security.handler.FormLoginAuthenticationFailureHandler;
+import com.example.SecurityPractice.security.handler.FormLoginAuthenticationSuccessHandler;
+import com.example.SecurityPractice.security.provider.FormLoginAuthenticationProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
 
-    private final JwtConfig jwtConfig;
+    @Autowired
+    private FormLoginAuthenticationSuccessHandler formLoginAuthenticationSuccessHandler;
+    @Autowired
+    private FormLoginAuthenticationFailureHandler formLoginAuthenticationFailureHandler;
+    @Autowired
+    private FormLoginAuthenticationProvider provider;
 
-    public SecurityConfig(JwtConfig jwtConfig) {
-        this.jwtConfig = jwtConfig;
+
+    // 1. 사용자를 검사하는 특정 주소와 인증 성공&실패 핸들러를 담아서 formLoginFilter 메서드를 생성합니다.
+    //addFilterBefore 필터 등록을 해줍니다.
+    protected FormLoginFilter formLoginFilter() throws Exception {
+        FormLoginFilter filter = new FormLoginFilter(
+                new AntPathRequestMatcher("/api/account/login", HttpMethod.POST.name()),
+                formLoginAuthenticationSuccessHandler,
+                formLoginAuthenticationFailureHandler
+        );
+        // filter.setAuthenticationManager(super.authenticationManagerBean());
+
+        return filter;
     }
 
+    // 2. provider 등록 해줍니다.
+    protected void configure(AuthenticationManagerBuilder auth) {
+        auth
+                .authenticationProvider(this.provider);
+    }
+
+//    public SecurityConfig(JwtConfig jwtConfig) {
+//        this.jwtConfig = jwtConfig;
+//    }
+
+    // Spring Security 5 권장하는 인코더
     @Bean
     PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean
@@ -42,7 +78,8 @@ public class SecurityConfig {
                 // 로그인, 회원가입 API 는 토큰이 없는 상태에서 요청이 들어오기 때문에 permitAll 설정
                 .and()
                 .authorizeRequests() // http servletRequest 를 사용하는 요청들에 대한 접근제한을 설정
-                .antMatchers("/index", "/", "/userLogin").permitAll()
+                .antMatchers("/index", "/", "/userLogin", "/api/**")
+                .permitAll()
 
                 // 나머지 API 는 전부 인증 필요
                 .anyRequest().authenticated()
