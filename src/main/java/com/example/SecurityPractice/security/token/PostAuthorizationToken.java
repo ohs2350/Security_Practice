@@ -1,10 +1,14 @@
 package com.example.SecurityPractice.security.token;
 
+import com.example.SecurityPractice.DTO.UserDTO;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class PostAuthorizationToken extends UsernamePasswordAuthenticationToken {
     // 인증 후 토큰
@@ -31,6 +35,19 @@ public class PostAuthorizationToken extends UsernamePasswordAuthenticationToken 
                 userDetails,
                 userDetails.getPassword(),
                 userDetails.getAuthorities()
+        );
+    }
+
+    public static PostAuthorizationToken getTokenFormUserDetails(UserDTO userDTO) {
+        Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+        grantedAuthorities.add(
+                new SimpleGrantedAuthority(userDTO.getRole().toString())
+        );
+
+        return new PostAuthorizationToken(
+                userDTO,
+                "null password",
+                grantedAuthorities
         );
     }
 

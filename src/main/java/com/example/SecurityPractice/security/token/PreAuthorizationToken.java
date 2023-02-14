@@ -11,7 +11,7 @@ public class PreAuthorizationToken extends UsernamePasswordAuthenticationToken {
     }
 
     public PreAuthorizationToken(UserDTO dto) {
-        this(dto.getName(), dto.getPassword());
+        this(dto.getId(), dto.getPassword());
     }
 
     public String getUsername() {

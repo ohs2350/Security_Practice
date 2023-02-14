@@ -2,8 +2,7 @@ package com.example.SecurityPractice.DTO;
 
 import com.example.SecurityPractice.Common.AuthRole;
 import com.example.SecurityPractice.Model.User;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;

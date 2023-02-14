@@ -9,8 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 
 @Component
 public class FormLoginAuthenticationFailureHandler implements AuthenticationFailureHandler {
-    // 로그인 실패 시 호출
 
+    // 로그인 실패 시 호출
     @Override
     public void onAuthenticationFailure(
             HttpServletRequest request,
@@ -18,6 +18,6 @@ public class FormLoginAuthenticationFailureHandler implements AuthenticationFail
             AuthenticationException exception
     ) {
         // 추후 로그로 변경
-        System.out.println(exception.getMessage());
+        System.out.println("로그인 실패 헨들러 실행, " + exception.getMessage());
     }
 }

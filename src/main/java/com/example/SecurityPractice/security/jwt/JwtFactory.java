@@ -30,6 +30,7 @@ public class JwtFactory {
                     .withClaim("USER_ROLE", role)
                     .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 24)))
                     .sign(generateAlgorithm());
+
         } catch (Exception e) {
             // 추후 로그로 변경
             System.out.println(e.getMessage());
