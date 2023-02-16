@@ -25,7 +25,7 @@ public class JwtFactory {
             String role = roles.iterator().next();
 
             token = JWT.create()
-                    .withIssuer("jjunpro")
+                    .withIssuer("ohs_jwt")
                     .withClaim("USERNAME", userDetails.getUsername())
                     .withClaim("USER_ROLE", role)
                     .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 24)))

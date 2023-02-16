@@ -32,11 +32,11 @@ public class UserService {
          * UsernameNotFoundException 에러 메소드를 사용합니다.
          * */
         if (user.isPresent()) {
-            return (UserDetails) User.builder()
-                    .id(user.get().getId())
-                    .name(user.get().getName())
+            return org.springframework.security.core.userdetails.User.builder()
+                    .username(user.get().getId())
                     .password(user.get().getPassword())
-                    .role(user.get().getRole())
+                    //.roles(user.get().getRole())
+                    .roles("USER")
                     .build();
         } else {
             throw new UsernameNotFoundException(name + "정보를 찾을 수 없습니다.");

@@ -55,6 +55,8 @@ public class FormLoginFilter extends AbstractAuthenticationProcessingFilter {
     @Override
     public Authentication attemptAuthentication( HttpServletRequest req, HttpServletResponse res )
             throws AuthenticationException, IOException, ServletException {
+        System.out.println("FormLoginFilter 실행");
+
         // JSON 으로 변환 - 사용자입력을 req 로 받고 값을 ObjectMapper 객체로 JSON 으로 변환하여 DTO 형식으로 저장
         UserDTO dto = new ObjectMapper().readValue(
                 req.getReader(),

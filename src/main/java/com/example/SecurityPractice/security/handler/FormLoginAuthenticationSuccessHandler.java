@@ -36,6 +36,7 @@ public class FormLoginAuthenticationSuccessHandler implements AuthenticationSucc
             HttpServletResponse res,
             Authentication auth
     ) throws IOException {
+        System.out.println("로그인 성공 헨들러");
 
         PostAuthorizationToken token   = (PostAuthorizationToken) auth;
         UserDetails userDetails = token.getUserDetails();

@@ -34,6 +34,7 @@ public class FormLoginAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication)
             throws AuthenticationException {
+        System.out.println("FormLoginAuthenticationProvider 실행");
         /**
          * 2.
          * 기본적으로 이전에 받은 로그인 정보를 담고 있는 Authentication 객체 PreToken 값을 가지고 있습니다.
@@ -46,7 +47,7 @@ public class FormLoginAuthenticationProvider implements AuthenticationProvider {
 
         // 3. 로그인한 유저가 DB에 존재하는지 service 를 통해서 확인.
         UserDetails user = userService.loadUserByUsername(username);
-        System.out.println("테스트" + username);
+
         /**
          * 4.
          * 로그인한 유저와 DB에 존재하는 유저의 Password 가 동일한지 조회하는 메소드 (*무조건 비교 대상이 앞에 와야한다.)

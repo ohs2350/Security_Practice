@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -44,30 +46,35 @@ public class SecurityConfig {
     private HeaderTokenExtractor headerTokenExtractor;
 
 
-    // 1. 사용자를 검사하는 특정 주소와 인증 성공&실패 핸들러를 담아서 formLoginFilter 메서드를 생성합니다.
-    // addFilterBefore 필터 등록을 해줍니다.
+    // 1. 사용자를 검사하는 특정 주소와 인증 성공&실패 핸들러를 담아서 formLoginFilter 메서드를 생성
     protected FormLoginFilter formLoginFilter() throws Exception {
         FormLoginFilter filter = new FormLoginFilter(
-                new AntPathRequestMatcher("/api/account/login", HttpMethod.POST.name()),
+                new AntPathRequestMatcher("/api/user/login", HttpMethod.POST.name()),
                 formLoginAuthenticationSuccessHandler,
                 formLoginAuthenticationFailureHandler
         );
-        // filter.setAuthenticationManager(super.authenticationManagerBean());
+        // AuthenticationManager 등록
+        filter.setAuthenticationManager(authenticationManager());
 
         return filter;
     }
 
-     // 2. provider 등록
-    protected void configure(AuthenticationManagerBuilder auth) {
-        auth
-                .authenticationProvider(this.provider)
-                .authenticationProvider(this.jwtProvider);
+    // AuthenticationManager 빈 등록
+    @Bean
+    public AuthenticationManager authenticationManager() throws Exception {
+        List<AuthenticationProvider> authenticationProviderList = new ArrayList<>();
+        authenticationProviderList.add(provider);
+        ProviderManager authenticationManager = new ProviderManager(authenticationProviderList);
+
+        return authenticationManager;
     }
 
-
-//    public SecurityConfig(JwtConfig jwtConfig) {
-//        this.jwtConfig = jwtConfig;
-//    }
+     // 2. provider 등록
+     @Autowired
+     public void config(AuthenticationManagerBuilder builder) {
+         builder.authenticationProvider(this.provider)
+                 .authenticationProvider(this.jwtProvider);
+     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws
