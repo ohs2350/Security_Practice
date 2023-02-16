@@ -1,6 +1,7 @@
 package com.example.SecurityPractice.security.token;
 
 import com.example.SecurityPractice.DTO.UserDTO;
+import com.example.SecurityPractice.DTO.UserJwtDTO;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -38,14 +39,14 @@ public class PostAuthorizationToken extends UsernamePasswordAuthenticationToken 
         );
     }
 
-    public static PostAuthorizationToken getTokenFormUserDetails(UserDTO userDTO) {
+    public static PostAuthorizationToken getTokenFormUserDetails(UserJwtDTO userJwtDTO) {
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
         grantedAuthorities.add(
-                new SimpleGrantedAuthority(userDTO.getRole().toString())
+                new SimpleGrantedAuthority(userJwtDTO.getRole().toString())
         );
 
         return new PostAuthorizationToken(
-                userDTO,
+                userJwtDTO,
                 "null password",
                 grantedAuthorities
         );

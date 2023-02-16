@@ -64,6 +64,7 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager() throws Exception {
         List<AuthenticationProvider> authenticationProviderList = new ArrayList<>();
         authenticationProviderList.add(provider);
+        authenticationProviderList.add(jwtProvider);
         ProviderManager authenticationManager = new ProviderManager(authenticationProviderList);
 
         return authenticationManager;
@@ -171,7 +172,8 @@ public class SecurityConfig {
                 matcher,
                 headerTokenExtractor
         );
-        // filter.setAuthenticationManager(super.authenticationManagerBean());
+        // AuthenticationManager 등록
+        filter.setAuthenticationManager(authenticationManager());
 
         return filter;
     }

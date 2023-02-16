@@ -36,12 +36,13 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
             HttpServletRequest request,
             HttpServletResponse response
     ) throws AuthenticationException {
-
         // JWT 값을 담아주는 변수 TokenPayload
         String tokenPayload = request.getHeader("Authorization");
 
         JwtPreProcessingToken preAuthorizationToken = new JwtPreProcessingToken(
                 extractor.extract(tokenPayload, request));
+
+        System.out.println("JWT 필터, jwt : " + tokenPayload);
 
         return super
                 .getAuthenticationManager()
@@ -55,6 +56,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
             FilterChain chain,
             Authentication authResult
     ) throws IOException, ServletException {
+        System.out.println("jwt필터 성공");
         /*
          *  SecurityContext 사용자 Token 저장소를 생성합니다.
          *  SecurityContext 에 사용자의 인증된 Token 값을 저장합니다.
@@ -77,6 +79,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
             HttpServletResponse response,
             AuthenticationException failed
     ) {
+        System.out.println("jwt필터 실패");
         /*
          *	로그인을 한 상태에서 Token값을 주고받는 상황에서 잘못된 Token값이라면
          *	인증이 성공하지 못한 단계 이기 때문에 잘못된 Token값을 제거합니다.

@@ -16,7 +16,7 @@ public class JwtDecoder {
 
     public UserJwtDTO decodeJwt(String token) {
         DecodedJWT decodedJWT = isValidToken(token)
-                .orElseThrow(() -> new NoSuchElementException("유효한 토큰아 아닙니다."));
+                .orElseThrow(() -> new NoSuchElementException("유효한 토큰이 아닙니다."));
 
         String username = decodedJWT
                 .getClaim("USERNAME")

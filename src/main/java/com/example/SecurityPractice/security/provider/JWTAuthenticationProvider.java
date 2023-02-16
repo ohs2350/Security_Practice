@@ -21,10 +21,12 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication)
             throws AuthenticationException {
+        System.out.println("JWTAuthenticationProvider 실행");
+
         String token = (String) authentication.getPrincipal();
         UserJwtDTO userJwtDTO = jwtDecoder.decodeJwt(token);
 
-        return PostAuthorizationToken.getTokenFormUserDetails((UserDetails) userJwtDTO);
+        return PostAuthorizationToken.getTokenFormUserDetails(userJwtDTO);
     }
 
     @Override
