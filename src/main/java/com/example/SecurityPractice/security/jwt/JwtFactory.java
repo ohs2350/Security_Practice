@@ -14,10 +14,9 @@ import java.util.stream.Collectors;
 public class JwtFactory {
 
     /**
-     * 1.
-     * JWT Token 을 만들어주는 메서드, JWT 값으로 유저 아이디, 유저 권한, 토큰 유효시간 을 포함
+     * JWT Access Token 생성 메서드, JWT 값으로 유저 아이디, 유저 권한, 토큰 유효시간 을 포함
      * */
-    public String generateToken(UserDetails userDetails) {
+    public String generateAccessToken(UserDetails userDetails) {
         String token = null;
         try {
             Set<String> roles = userDetails.getAuthorities().stream()
@@ -28,7 +27,27 @@ public class JwtFactory {
                     .withIssuer("ohs_jwt")
                     .withClaim("USERNAME", userDetails.getUsername())
                     .withClaim("USER_ROLE", role)
-                    .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 24)))
+                    .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 2))) // 2시간
+                    .sign(generateAlgorithm());
+
+        } catch (Exception e) {
+            // 추후 로그로 변경
+            System.out.println(e.getMessage());
+        }
+
+        return token;
+    }
+
+    /**
+     * JWT Refresh Token 생성 메서드, JWT 값으로 페이로드엔 아무 값도 넣지 않음
+     * */
+    public String generateRefreshToken() {
+        String token = null;
+        try {
+            // 유효기간 2주, 페이로드에 값 담지 않음
+            token = JWT.create()
+                    .withIssuer("refresh")
+                    .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 24 * 14)))
                     .sign(generateAlgorithm());
 
         } catch (Exception e) {

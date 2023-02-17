@@ -2,6 +2,7 @@ package com.example.SecurityPractice.security.handler;
 
 import com.example.SecurityPractice.DTO.TokenDTO;
 import com.example.SecurityPractice.security.jwt.JwtFactory;
+import com.example.SecurityPractice.security.jwt.RedisService;
 import com.example.SecurityPractice.security.token.PostAuthorizationToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class FormLoginAuthenticationSuccessHandler implements AuthenticationSucc
     // 2.
     private final JwtFactory factory;
     private final ObjectMapper objectMapper;
+    private  final RedisService redisService;
 
     /**
      * 1.
@@ -46,10 +48,14 @@ public class FormLoginAuthenticationSuccessHandler implements AuthenticationSucc
          * PostAuthorizationToken 객체에 담아줄 JWT Token 을 생성해야 한다.
          * 그 후 processRespone 메서드를 통해서 Response 상태와 jwt 값을 전송
          * */
-        String tokenString = factory.generateToken(userDetails);
+        String tokenString = factory.generateAccessToken(userDetails);
+        String refresh = factory.generateRefreshToken();
 
-        // 3. Token 값을 정형화된 DTO 를 생성
+        // 3. Access Token 값을 정형화된 DTO 를 생성
         TokenDTO tokenDTO = new TokenDTO(tokenString, userDetails.getUsername());
+
+        // 4. Refresh Token 값 Redis에 저장 (토큰 : 유저아이디 형식)
+        redisService.insertRefreshToken(userDetails.getUsername(), refresh);
 
         processResponse(res, tokenDTO);
     }

@@ -138,6 +138,13 @@ public class SecurityConfig {
                 )
                 .hasRole("USER");
 
+        // 로그아웃 설정
+        http.logout() // 로그아웃 기능 작동함
+                .logoutUrl("/logout") // 로그아웃 처리 URL, default: /logout, 원칙적으로 post 방식만 지원
+                .logoutSuccessUrl("/index") // 로그아웃 성공 후 이동페이지
+                .addLogoutHandler( ...생략... ) // 로그아웃 핸들러
+                .logoutSuccessHandler( ...생략... )
+
                 // JwtFilter 를 등록한다.
                 // UsernamePasswordAuthenticationFilter 앞에 등록하는 이유는 딱히 없지만
                 // SecurityContext를 사용하기 때문에 앞단의 필터에서 SecurityContext가 설정되고 난뒤 필터를 둔다.
