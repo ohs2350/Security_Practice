@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -50,6 +51,12 @@ public class FormLoginAuthenticationSuccessHandler implements AuthenticationSucc
          * */
         String tokenString = factory.generateAccessToken(userDetails);
         String refresh = factory.generateRefreshToken();
+
+        // HttpOnly 옵션이 설정된 쿠키에 access token 저장
+        Cookie cookie = new Cookie("ACCESS_TOKEN", tokenString);
+        cookie.setHttpOnly(true); // HttpOnly 옵션 설정
+//        cookie.setSecure(true); // Secure 옵션 설정
+        res.addCookie(cookie);
 
         // 3. Access Token 값을 정형화된 DTO 를 생성
         TokenDTO tokenDTO = new TokenDTO(tokenString, userDetails.getUsername());

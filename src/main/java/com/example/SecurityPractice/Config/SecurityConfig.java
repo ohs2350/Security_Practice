@@ -3,9 +3,13 @@ package com.example.SecurityPractice.Config;
 import com.example.SecurityPractice.security.common.FilterSkipMatcher;
 import com.example.SecurityPractice.security.filter.FormLoginFilter;
 import com.example.SecurityPractice.security.filter.JwtAuthenticationFilter;
+import com.example.SecurityPractice.security.handler.CustomLogoutHandler;
+import com.example.SecurityPractice.security.handler.CustomLogoutSuccessHandler;
 import com.example.SecurityPractice.security.handler.FormLoginAuthenticationFailureHandler;
 import com.example.SecurityPractice.security.handler.FormLoginAuthenticationSuccessHandler;
 import com.example.SecurityPractice.security.jwt.HeaderTokenExtractor;
+import com.example.SecurityPractice.security.jwt.JwtDecoder;
+import com.example.SecurityPractice.security.jwt.RedisService;
 import com.example.SecurityPractice.security.provider.FormLoginAuthenticationProvider;
 import com.example.SecurityPractice.security.provider.JWTAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +22,10 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.ArrayList;
@@ -44,6 +45,10 @@ public class SecurityConfig {
     private JWTAuthenticationProvider jwtProvider;
     @Autowired
     private HeaderTokenExtractor headerTokenExtractor;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    JwtDecoder jwtDecoder;
 
 
     // 1. 사용자를 검사하는 특정 주소와 인증 성공&실패 핸들러를 담아서 formLoginFilter 메서드를 생성
@@ -95,6 +100,15 @@ public class SecurityConfig {
                 .headers()
                 .frameOptions()
                 .disable();
+//        http
+//                .csrf()
+//                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());// HttpOnly 적용
+//        http
+//                .rememberMe()
+//                .key("uniqueAndSecret")
+//                .rememberMeCookieName("remember-me-cookie")
+//                .tokenValiditySeconds(86400).useSecureCookie(true); // Secure 적용
+
 
 //                // 로그인, 회원가입 API 는 토큰이 없는 상태에서 요청이 들어오기 때문에 permitAll 설정
 //                .and()
@@ -142,8 +156,9 @@ public class SecurityConfig {
         http.logout() // 로그아웃 기능 작동함
                 .logoutUrl("/logout") // 로그아웃 처리 URL, default: /logout, 원칙적으로 post 방식만 지원
                 .logoutSuccessUrl("/index") // 로그아웃 성공 후 이동페이지
-                .addLogoutHandler( ...생략... ) // 로그아웃 핸들러
-                .logoutSuccessHandler( ...생략... )
+                .addLogoutHandler(customLogoutHandler()) // 로그아웃 헨들러 등록
+                .logoutSuccessHandler(customLogoutSuccessHandler()) // 로그아웃 성공 핸들러
+                .deleteCookies("ACCESS_TOKEN");
 
                 // JwtFilter 를 등록한다.
                 // UsernamePasswordAuthenticationFilter 앞에 등록하는 이유는 딱히 없지만
@@ -167,6 +182,7 @@ public class SecurityConfig {
         skipPath.add(new AntPathRequestMatcher("/api/user", HttpMethod.POST.name()));
         skipPath.add(new AntPathRequestMatcher("/api/user/login", HttpMethod.POST.name()));
         skipPath.add(new AntPathRequestMatcher("/login", HttpMethod.GET.name()));
+        skipPath.add(new AntPathRequestMatcher("/logout", HttpMethod.POST.name()));
         skipPath.add(new AntPathRequestMatcher("/", HttpMethod.GET.name()));
         skipPath.add(new AntPathRequestMatcher("/index", HttpMethod.GET.name()));
 
@@ -183,5 +199,14 @@ public class SecurityConfig {
         filter.setAuthenticationManager(authenticationManager());
 
         return filter;
+    }
+
+
+    private CustomLogoutHandler customLogoutHandler() {
+        return new CustomLogoutHandler(headerTokenExtractor, redisService, jwtDecoder);
+    }
+
+    private CustomLogoutSuccessHandler customLogoutSuccessHandler() {
+        return new CustomLogoutSuccessHandler();
     }
 }

@@ -21,4 +21,8 @@ public class RedisService {
 
         System.out.println("Refresh Token 저장 : " + refresh);
     }
+
+    public void deleteRefreshToken(String id) {
+        redisTemplate.delete(id);
+    }
 }

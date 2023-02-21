@@ -2,6 +2,7 @@ package com.example.SecurityPractice.security.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,18 @@ import java.util.stream.Collectors;
 
 @Component
 public class JwtFactory {
+    @Value("${jwt.access.secret}")
+    private String accessSecret;
+
+    @Value("${jwt.refresh.secret}")
+    private String refreshSecret;
+
+    @Value("${jwt.issuer}")
+    private String jwtIssuer;
+
+//    @Value("${jwt.expiration}")
+//    private int jwtExpiration;
+
 
     /**
      * JWT Access Token 생성 메서드, JWT 값으로 유저 아이디, 유저 권한, 토큰 유효시간 을 포함
@@ -24,11 +37,11 @@ public class JwtFactory {
             String role = roles.iterator().next();
 
             token = JWT.create()
-                    .withIssuer("ohs_jwt")
+                    .withIssuer(jwtIssuer)
                     .withClaim("USERNAME", userDetails.getUsername())
                     .withClaim("USER_ROLE", role)
                     .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 2))) // 2시간
-                    .sign(generateAlgorithm());
+                    .sign(generateAlgorithm(accessSecret));
 
         } catch (Exception e) {
             // 추후 로그로 변경
@@ -46,9 +59,9 @@ public class JwtFactory {
         try {
             // 유효기간 2주, 페이로드에 값 담지 않음
             token = JWT.create()
-                    .withIssuer("refresh")
+                    .withIssuer(jwtIssuer)
                     .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 24 * 14)))
-                    .sign(generateAlgorithm());
+                    .sign(generateAlgorithm(refreshSecret));
 
         } catch (Exception e) {
             // 추후 로그로 변경
@@ -59,8 +72,7 @@ public class JwtFactory {
     }
 
     // 2. signature 서명 값을 선언해주고 Algorithm generateAlgorithm() 암호화 메서드로 암호화 후 값을 넣어줍니다.
-    private Algorithm generateAlgorithm() throws UnsupportedEncodingException {
-        String signingKey = "jwttest";
-        return Algorithm.HMAC256(signingKey);
+    private Algorithm generateAlgorithm(String key) throws UnsupportedEncodingException {
+        return Algorithm.HMAC256(key);
     }
 }
