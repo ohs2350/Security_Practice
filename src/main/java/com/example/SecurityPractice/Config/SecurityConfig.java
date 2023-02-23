@@ -9,6 +9,7 @@ import com.example.SecurityPractice.security.handler.FormLoginAuthenticationFail
 import com.example.SecurityPractice.security.handler.FormLoginAuthenticationSuccessHandler;
 import com.example.SecurityPractice.security.jwt.HeaderTokenExtractor;
 import com.example.SecurityPractice.security.jwt.JwtDecoder;
+import com.example.SecurityPractice.security.jwt.JwtFactory;
 import com.example.SecurityPractice.security.jwt.RedisService;
 import com.example.SecurityPractice.security.provider.FormLoginAuthenticationProvider;
 import com.example.SecurityPractice.security.provider.JWTAuthenticationProvider;
@@ -185,6 +186,7 @@ public class SecurityConfig {
         skipPath.add(new AntPathRequestMatcher("/logout", HttpMethod.POST.name()));
         skipPath.add(new AntPathRequestMatcher("/", HttpMethod.GET.name()));
         skipPath.add(new AntPathRequestMatcher("/index", HttpMethod.GET.name()));
+        skipPath.add(new AntPathRequestMatcher("/refresh", HttpMethod.POST.name()));
 
         FilterSkipMatcher matcher = new FilterSkipMatcher(
                 skipPath,

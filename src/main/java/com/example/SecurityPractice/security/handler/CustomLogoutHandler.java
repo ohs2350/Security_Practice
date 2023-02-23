@@ -40,9 +40,11 @@ public class CustomLogoutHandler implements LogoutHandler {
             UserJwtDTO userJwtDTO = jwtDecoder.decodeJwt(accessToken);
             redisService.deleteRefreshToken(userJwtDTO.getId());
         }
+        else {
+            throw new NoSuchElementException("Access Token 이 존재하지 않습니다.");
+        }
 
-        // 이곳까지 통과하지 못하면 잘못된 요청으로 접근하지 못한것, 그러므로 throw
-        throw new NoSuchElementException("Access Token 이 존재하지 않습니다.");
+
 
         // 1. 먼저 요청받은 AccessToken 유효성을 검증
         // 2. 액세스 토큰을 통해 Authentication 객체를 그리고 저장된 User 정보를 가져오기

@@ -75,4 +75,5 @@ public class JwtFactory {
     private Algorithm generateAlgorithm(String key) throws UnsupportedEncodingException {
         return Algorithm.HMAC256(key);
     }
+
 }

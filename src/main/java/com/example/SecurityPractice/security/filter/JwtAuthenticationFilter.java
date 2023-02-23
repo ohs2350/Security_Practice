@@ -1,6 +1,8 @@
 package com.example.SecurityPractice.security.filter;
 
 import com.example.SecurityPractice.security.jwt.HeaderTokenExtractor;
+import com.example.SecurityPractice.security.jwt.JwtDecoder;
+import com.example.SecurityPractice.security.jwt.JwtFactory;
 import com.example.SecurityPractice.security.token.JwtPreProcessingToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -24,10 +26,8 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
     public JwtAuthenticationFilter(
             RequestMatcher requiresAuthenticationRequestMatcher,
-            HeaderTokenExtractor extractor
-    ) {
+            HeaderTokenExtractor extractor) {
         super(requiresAuthenticationRequestMatcher);
-
         this.extractor = extractor;
     }
 
@@ -38,9 +38,10 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
     ) throws AuthenticationException {
         // JWT 값을 담아주는 변수 TokenPayload
         String tokenPayload = request.getHeader("Authorization");
+        String extractorToken = extractor.extract(tokenPayload, request);
 
-        JwtPreProcessingToken preAuthorizationToken = new JwtPreProcessingToken(
-                extractor.extract(tokenPayload, request));
+        JwtPreProcessingToken preAuthorizationToken = new JwtPreProcessingToken(extractorToken);
+
 
         System.out.println("JWT 필터, jwt : " + tokenPayload);
 
